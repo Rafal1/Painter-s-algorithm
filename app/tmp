@@ -1,0 +1,24 @@
+//var c = document.getElementById("myCanvas");
+//var ctx = c.getContext("2d");
+//
+//ctx.rect(50, 150, 80, 100);
+//ctx.stroke();
+//
+//ctx.moveTo(50, 150);
+//ctx.lineTo(80, 120.5);
+//ctx.stroke();
+//
+//ctx.moveTo(50 + 80, 150);
+//ctx.lineTo(50 + 80 + 30, 150.5 - 30);
+//ctx.stroke();
+//
+//ctx.moveTo(50 + 80, 250);
+//ctx.lineTo(50 + 80 + 30.5, 250.5 - 30);
+//ctx.stroke();
+//
+//ctx.moveTo(50, 250);
+//ctx.lineTo(50 + 30.5, 250.5 - 30);
+//ctx.stroke();
+//
+//ctx.rect(50.5 + 30, 150.5 - 30, 80, 100);
+//ctx.stroke();
