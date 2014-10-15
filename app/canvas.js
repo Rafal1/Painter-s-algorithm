@@ -148,3 +148,36 @@ for (var i = 0; i < vectors2.length; i++) {
     var tmpVe = vectors2[i];
     tmpVe.draw();
 }
+
+var points3 = [];
+//40 + 25
+points3[0] = new Point3D(20, -20, 1.4);
+points3[1] = new Point3D(60, -20, 1.4);
+points3[2] = new Point3D(60, 5, 1.4);
+points3[3] = new Point3D(20, 5, 1.4);
+
+points3[4] = new Point3D(20, -20, 2.5);
+points3[5] = new Point3D(60, -20, 2.5);
+points3[6] = new Point3D(60, 5, 2.5);
+points3[7] = new Point3D(20, 5, 2.5);
+
+var vectors3 = [];
+vectors3[0] = new Vector3D(points3[0], points3[1]);
+vectors3[1] = new Vector3D(points3[1], points3[2]);
+vectors3[2] = new Vector3D(points3[2], points3[3]);
+vectors3[3] = new Vector3D(points3[3], points3[0]);
+
+vectors3[4] = new Vector3D(points3[4], points3[5]);
+vectors3[5] = new Vector3D(points3[5], points3[6]);
+vectors3[6] = new Vector3D(points3[6], points3[7]);
+vectors3[7] = new Vector3D(points3[7], points3[4]);
+
+vectors3[8] = new Vector3D(points3[0], points3[4]);
+vectors3[9] = new Vector3D(points3[1], points3[5]);
+vectors3[10] = new Vector3D(points3[2], points3[6]);
+vectors3[11] = new Vector3D(points3[3], points3[7]);
+
+for (var i = 0; i < vectors3.length; i++) {
+    var tmpVe = vectors3[i];
+    tmpVe.draw();
+}
