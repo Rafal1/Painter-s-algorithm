@@ -52,35 +52,24 @@ function Vector3D(A, B) {
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d");
 
-        //this.A = transformCoordinateSystem(this.A);
-        //this.B = transformCoordinateSystem(this.B);
+        var afterProjection = this.projection();
 
-        var AxP = this.A.x * CONSTANT_POSITION_D / (this.A.z);
-        var AyP = this.A.y * CONSTANT_POSITION_D / (this.A.z);
+        var PointATransformSystem = transformCoordinateSystem(afterProjection[0],afterProjection[1]);
+        var PointBTransformSystem = transformCoordinateSystem(afterProjection[2],afterProjection[3]);
 
-        var BxP = this.B.x * CONSTANT_POSITION_D / (this.B.z);
-        var ByP = this.B.y * CONSTANT_POSITION_D / (this.B.z);
-
-        var Cx = new Date();
-
-        var Ax = AxP + 300;
-        var Ay = -AyP + 200;
-
-        var Bx = BxP + 300;
-        var By = -ByP + 200;
-
-        ctx.moveTo(Ax, Ay);
-        ctx.lineTo(Bx, By);
+        ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+        ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
         ctx.stroke();
-        var cx = new Date();
     }
 }
 
-function transformCoordinateSystem(point) {
-    point.x = point.x + 300;
-    point.y = -point.y + 200;
-    //z bez zmian
-    return point;
+function transformCoordinateSystem(Bx, By) {
+    Bx = Bx + 300;
+    By = -By + 200;
+    return {
+        transformedX: Bx,
+        transformedY: By
+    }
 }
 
 var points1 = [];
@@ -94,6 +83,7 @@ points1[4] = new Point3D(-20, -20, 2);
 points1[5] = new Point3D(-60, -20, 2);
 points1[6] = new Point3D(-60, 10, 2);
 points1[7] = new Point3D(-20, 10, 2);
+
 
 var vectors1 = [];
 vectors1[0] = new Vector3D(points1[0], points1[1]);
@@ -111,6 +101,14 @@ vectors1[9] = new Vector3D(points1[1], points1[5]);
 vectors1[10] = new Vector3D(points1[2], points1[6]);
 vectors1[11] = new Vector3D(points1[3], points1[7]);
 
+//todo makeVectorsFromPoints() 1.
+//todo array with all vectors (of 3 solids) 2.
+//todo for to translate all points in all vectors 3.
+//todo method to draw vectors table 4.
+//todo control system for translation
+//todo zoom option + control system
+//todo rotate calculations
+//todo divide a big script to many smaller
 for (var i = 0; i < vectors1.length; i++) {
     var tmpVe = vectors1[i];
     tmpVe.draw();
