@@ -54,8 +54,8 @@ function Vector3D(A, B) {
 
         var afterProjection = this.projection();
 
-        var PointATransformSystem = transformCoordinateSystem(afterProjection[0],afterProjection[1]);
-        var PointBTransformSystem = transformCoordinateSystem(afterProjection[2],afterProjection[3]);
+        var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
+        var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
 
         ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
         ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
@@ -72,6 +72,31 @@ function transformCoordinateSystem(Bx, By) {
     }
 }
 
+function makeSolidVectorsFromPoints(points) {
+    var vectors = [];
+    vectors[0] = new Vector3D(points[0], points[1]);
+    vectors[1] = new Vector3D(points[1], points[2]);
+    vectors[2] = new Vector3D(points[2], points[3]);
+    vectors[3] = new Vector3D(points[3], points[0]);
+
+    vectors[4] = new Vector3D(points[4], points[5]);
+    vectors[5] = new Vector3D(points[5], points[6]);
+    vectors[6] = new Vector3D(points[6], points[7]);
+    vectors[7] = new Vector3D(points[7], points[4]);
+
+    vectors[8] = new Vector3D(points[0], points[4]);
+    vectors[9] = new Vector3D(points[1], points[5]);
+    vectors[10] = new Vector3D(points[2], points[6]);
+    vectors[11] = new Vector3D(points[3], points[7]);
+
+    return vectors;
+}
+
+function tanslatePicture(vectors, direction) {
+    
+
+}
+
 var points1 = [];
 //-40 + 30
 points1[0] = new Point3D(-20, -20, 1.3);
@@ -84,25 +109,9 @@ points1[5] = new Point3D(-60, -20, 2);
 points1[6] = new Point3D(-60, 10, 2);
 points1[7] = new Point3D(-20, 10, 2);
 
-
-var vectors1 = [];
-vectors1[0] = new Vector3D(points1[0], points1[1]);
-vectors1[1] = new Vector3D(points1[1], points1[2]);
-vectors1[2] = new Vector3D(points1[2], points1[3]);
-vectors1[3] = new Vector3D(points1[3], points1[0]);
-
-vectors1[4] = new Vector3D(points1[4], points1[5]);
-vectors1[5] = new Vector3D(points1[5], points1[6]);
-vectors1[6] = new Vector3D(points1[6], points1[7]);
-vectors1[7] = new Vector3D(points1[7], points1[4]);
-
-vectors1[8] = new Vector3D(points1[0], points1[4]);
-vectors1[9] = new Vector3D(points1[1], points1[5]);
-vectors1[10] = new Vector3D(points1[2], points1[6]);
-vectors1[11] = new Vector3D(points1[3], points1[7]);
-
-//todo makeVectorsFromPoints() 1.
-//todo array with all vectors (of 3 solids) 2.
+var vectors1 = makeSolidVectorsFromPoints(points1);
+//+todo makeVectorsFromPoints() 1.
+//+todo array with all vectors (of 3 solids) 2.
 //todo for to translate all points in all vectors 3.
 //todo method to draw vectors table 4.
 //todo control system for translation
@@ -126,22 +135,7 @@ points2[5] = new Point3D(-50, -20, 2.8);
 points2[6] = new Point3D(-50, 50, 2.8);
 points2[7] = new Point3D(-20, 50, 2.8);
 
-var vectors2 = [];
-vectors2[0] = new Vector3D(points2[0], points2[1]);
-vectors2[1] = new Vector3D(points2[1], points2[2]);
-vectors2[2] = new Vector3D(points2[2], points2[3]);
-vectors2[3] = new Vector3D(points2[3], points2[0]);
-
-vectors2[4] = new Vector3D(points2[4], points2[5]);
-vectors2[5] = new Vector3D(points2[5], points2[6]);
-vectors2[6] = new Vector3D(points2[6], points2[7]);
-vectors2[7] = new Vector3D(points2[7], points2[4]);
-
-vectors2[8] = new Vector3D(points2[0], points2[4]);
-vectors2[9] = new Vector3D(points2[1], points2[5]);
-vectors2[10] = new Vector3D(points2[2], points2[6]);
-vectors2[11] = new Vector3D(points2[3], points2[7]);
-
+var vectors2 = makeSolidVectorsFromPoints(points2);
 for (var i = 0; i < vectors2.length; i++) {
     var tmpVe = vectors2[i];
     tmpVe.draw();
@@ -159,23 +153,11 @@ points3[5] = new Point3D(60, -20, 2.5);
 points3[6] = new Point3D(60, 5, 2.5);
 points3[7] = new Point3D(20, 5, 2.5);
 
-var vectors3 = [];
-vectors3[0] = new Vector3D(points3[0], points3[1]);
-vectors3[1] = new Vector3D(points3[1], points3[2]);
-vectors3[2] = new Vector3D(points3[2], points3[3]);
-vectors3[3] = new Vector3D(points3[3], points3[0]);
-
-vectors3[4] = new Vector3D(points3[4], points3[5]);
-vectors3[5] = new Vector3D(points3[5], points3[6]);
-vectors3[6] = new Vector3D(points3[6], points3[7]);
-vectors3[7] = new Vector3D(points3[7], points3[4]);
-
-vectors3[8] = new Vector3D(points3[0], points3[4]);
-vectors3[9] = new Vector3D(points3[1], points3[5]);
-vectors3[10] = new Vector3D(points3[2], points3[6]);
-vectors3[11] = new Vector3D(points3[3], points3[7]);
-
+var vectors3 = makeSolidVectorsFromPoints(points3);
 for (var i = 0; i < vectors3.length; i++) {
     var tmpVe = vectors3[i];
     tmpVe.draw();
 }
+
+var allVectors = vectors1.concat(vectors2).concat(vectors3); //i checked length = 36, it's ok
+
