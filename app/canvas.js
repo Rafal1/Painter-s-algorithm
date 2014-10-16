@@ -3,6 +3,7 @@
  */
 var TRANSLATE_DEFAULT_STEP = 10;
 var CONSTANT_POSITION_D = 5;
+var TRANSLATE_ADJUSTMENT = 50; //higher -> less movement on z axis
 
 function Point3D(x, y, z) {
     this.x = x;
@@ -33,11 +34,11 @@ function Point3D(x, y, z) {
     }
 
     function translateForward() {
-        this.z = this.z - (TRANSLATE_DEFAULT_STEP / 50); //TODO establish constant instead hardcode 50 :)
+        this.z = this.z - (TRANSLATE_DEFAULT_STEP / TRANSLATE_ADJUSTMENT);
     }
 
     function translateBack() {
-        this.z = this.z + (TRANSLATE_DEFAULT_STEP / 50);
+        this.z = this.z + (TRANSLATE_DEFAULT_STEP / TRANSLATE_ADJUSTMENT);
     }
 
 }
