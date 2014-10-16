@@ -15,19 +15,19 @@ function Point3D(x, y, z) {
     this.translateRight = translateRight;
 
     function translateUP() {
-        this.y = y + TRANSLATE_DEFAULT_STEP;
+        this.y = this.y - TRANSLATE_DEFAULT_STEP;
     }
 
     function translateLeft() {
-        this.x = x - TRANSLATE_DEFAULT_STEP;
+        this.x = this.x + TRANSLATE_DEFAULT_STEP;
     }
 
     function translateDown() {
-        this.y = y - TRANSLATE_DEFAULT_STEP;
+        this.y = this.y + TRANSLATE_DEFAULT_STEP;
     }
 
     function translateRight() {
-        this.x = x + TRANSLATE_DEFAULT_STEP;
+        this.x = this.x - TRANSLATE_DEFAULT_STEP;
     }
 
 }
@@ -48,10 +48,7 @@ function Vector3D(A, B) {
         return newCoordAfter;
     }
 
-    function draw() {
-        var c = document.getElementById("myCanvas");
-        var ctx = c.getContext("2d");
-
+    function draw(ctx) {
         var afterProjection = this.projection();
 
         var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
@@ -92,9 +89,42 @@ function makeSolidVectorsFromPoints(points) {
     return vectors;
 }
 
-function tanslatePicture(vectors, direction) {
-    
+function tanslatePicture(points, direction) {
+    switch (direction) {
+        case "up":
+            for (var i = 0; i < points.length; i++) {
+                points[i].translateUP();
+            }
+            break;
+        case "right":
+            for (var i = 0; i < points.length; i++) {
+                points[i].translateRight();
+            }
+            break;
+        case "down":
+            for (var i = 0; i < points.length; i++) {
+                points[i].translateDown();
+            }
+            break;
+        case "left":
+            for (var i = 0; i < points.length; i++) {
+                points[i].translateLeft();
+            }
+            break;
+        default:
+            break;
+    }
+}
 
+function drawScene(vectors) {
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, c.width, c.height);
+    ctx.beginPath();
+    for (var i = 0; i < vectors.length; i++) {
+        var tmpVe = vectors[i];
+        tmpVe.draw(ctx);
+    }
 }
 
 var points1 = [];
@@ -109,20 +139,6 @@ points1[5] = new Point3D(-60, -20, 2);
 points1[6] = new Point3D(-60, 10, 2);
 points1[7] = new Point3D(-20, 10, 2);
 
-var vectors1 = makeSolidVectorsFromPoints(points1);
-//+todo makeVectorsFromPoints() 1.
-//+todo array with all vectors (of 3 solids) 2.
-//todo for to translate all points in all vectors 3.
-//todo method to draw vectors table 4.
-//todo control system for translation
-//todo zoom option + control system
-//todo rotate calculations
-//todo divide a big script to many smaller
-for (var i = 0; i < vectors1.length; i++) {
-    var tmpVe = vectors1[i];
-    tmpVe.draw();
-}
-
 var points2 = [];
 //-30 + 70
 points2[0] = new Point3D(-20, -20, 2.2);
@@ -134,12 +150,6 @@ points2[4] = new Point3D(-20, -20, 2.8);
 points2[5] = new Point3D(-50, -20, 2.8);
 points2[6] = new Point3D(-50, 50, 2.8);
 points2[7] = new Point3D(-20, 50, 2.8);
-
-var vectors2 = makeSolidVectorsFromPoints(points2);
-for (var i = 0; i < vectors2.length; i++) {
-    var tmpVe = vectors2[i];
-    tmpVe.draw();
-}
 
 var points3 = [];
 //40 + 25
@@ -153,11 +163,24 @@ points3[5] = new Point3D(60, -20, 2.5);
 points3[6] = new Point3D(60, 5, 2.5);
 points3[7] = new Point3D(20, 5, 2.5);
 
+var vectors1 = makeSolidVectorsFromPoints(points1);
+var vectors2 = makeSolidVectorsFromPoints(points2);
 var vectors3 = makeSolidVectorsFromPoints(points3);
-for (var i = 0; i < vectors3.length; i++) {
-    var tmpVe = vectors3[i];
-    tmpVe.draw();
-}
-
 var allVectors = vectors1.concat(vectors2).concat(vectors3); //i checked length = 36, it's ok
+var allPoints = points1.concat(points2).concat(points3);
 
+drawScene(allVectors);
+tanslatePicture(allPoints, "up");
+tanslatePicture(allPoints, "up");
+tanslatePicture(allPoints, "up");
+
+tanslatePicture(allPoints, "right");
+tanslatePicture(allPoints, "right");
+tanslatePicture(allPoints, "right");
+
+drawScene(allVectors);
+
+//todo control system for translation
+//todo zoom option + control system
+//todo rotate calculations
+//todo divide a big script to many smaller
