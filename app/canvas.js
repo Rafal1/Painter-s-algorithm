@@ -13,6 +13,8 @@ function Point3D(x, y, z) {
     this.translateDown = translateDown;
     this.translateLeft = translateLeft;
     this.translateRight = translateRight;
+    this.translateForward = translateForward;
+    this.translateBack = translateBack;
 
     function translateUP() {
         this.y = this.y - TRANSLATE_DEFAULT_STEP;
@@ -28,6 +30,14 @@ function Point3D(x, y, z) {
 
     function translateRight() {
         this.x = this.x - TRANSLATE_DEFAULT_STEP;
+    }
+
+    function translateForward() {
+        this.z = this.z - (TRANSLATE_DEFAULT_STEP / 50); //TODO establish constant instead hardcode 50 :)
+    }
+
+    function translateBack() {
+        this.z = this.z + (TRANSLATE_DEFAULT_STEP / 50);
     }
 
 }
@@ -111,6 +121,16 @@ function tanslatePicture(points, direction) {
                 points[i].translateLeft();
             }
             break;
+        case "forward":
+            for (var i = 0; i < points.length; i++) {
+                points[i].translateForward();
+            }
+            break;
+        case "back":
+            for (var i = 0; i < points.length; i++) {
+                points[i].translateBack();
+            }
+            break;
         default:
             break;
     }
@@ -170,13 +190,25 @@ var allVectors = vectors1.concat(vectors2).concat(vectors3); //i checked length 
 var allPoints = points1.concat(points2).concat(points3);
 
 drawScene(allVectors);
-tanslatePicture(allPoints, "up");
-tanslatePicture(allPoints, "up");
-tanslatePicture(allPoints, "up");
+//tanslatePicture(allPoints, "up");
+//tanslatePicture(allPoints, "up");
+//tanslatePicture(allPoints, "up");
+//
+//tanslatePicture(allPoints, "right");
+//tanslatePicture(allPoints, "right");
+//tanslatePicture(allPoints, "right");
 
-tanslatePicture(allPoints, "right");
-tanslatePicture(allPoints, "right");
-tanslatePicture(allPoints, "right");
+//tanslatePicture(allPoints, "forward");
+//tanslatePicture(allPoints, "forward");
+//tanslatePicture(allPoints, "forward");
+//tanslatePicture(allPoints, "forward");
+//tanslatePicture(allPoints, "forward");
+
+//tanslatePicture(allPoints, "back");
+//tanslatePicture(allPoints, "back");
+//tanslatePicture(allPoints, "back");
+//tanslatePicture(allPoints, "back");
+//tanslatePicture(allPoints, "back");
 
 drawScene(allVectors);
 
