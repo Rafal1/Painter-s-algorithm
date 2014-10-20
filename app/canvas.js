@@ -5,6 +5,8 @@ var TRANSLATE_DEFAULT_STEP = 12;
 var CONSTANT_POSITION_D = 50;
 var TRANSLATE_ADJUSTMENT = 20; //higher -> less movement on z axis
 var ZOOM_CHANGE = 20;
+var CONSTANT_ROTATE = 15;
+
 function Point3D(x, y, z) {
     this.x = x;
     this.y = y;
@@ -16,6 +18,10 @@ function Point3D(x, y, z) {
     this.translateRight = translateRight;
     this.translateForward = translateForward;
     this.translateBack = translateBack;
+
+    this.rotateX = rotateX;
+    this.rotateY = rotateY;
+    this.rotateZ = rotateZ;
 
     function translateUP() {
         this.y = this.y - TRANSLATE_DEFAULT_STEP;
@@ -41,6 +47,22 @@ function Point3D(x, y, z) {
         this.z = this.z + (TRANSLATE_DEFAULT_STEP / TRANSLATE_ADJUSTMENT);
     }
 
+    function rotateX(dir) {
+        this.y = this.y * Math.cos(CONSTANT_ROTATE * Math.PI / 180) - this.z * Math.sin(CONSTANT_ROTATE * Math.PI / 180);
+        this.z = this.y * Math.sin(CONSTANT_ROTATE * Math.PI / 180) + this.z * Math.cos(CONSTANT_ROTATE * Math.PI / 180);
+        if (dir == 1) {
+            CONSTANT_ROTATE += CONSTANT_ROTATE;
+        } else {
+            CONSTANT_ROTATE -= CONSTANT_ROTATE;
+        }
+    }
+
+    function rotateY() {
+    }
+
+    function rotateZ() {
+
+    }
 }
 
 function Vector3D(A, B) {
@@ -178,6 +200,23 @@ function tanslatePicture(points, direction) {
     }
 }
 
+function rotatePicture(points, direction) {
+    switch (direction) {
+        case "XF":
+            for (var i = 0; i < points.length; i++) {
+                points[i].rotateX(1);
+            }
+            break;
+        case "XB":
+            for (var i = 0; i < points.length; i++) {
+                points[i].rotateX(-1);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 function drawScene(vectors) {
     var c = document.getElementById("myCanvas");
     var ctx = c.getContext("2d");
@@ -221,6 +260,14 @@ function controlSystem(event) {
             break;
         case 79: //o
             CONSTANT_POSITION_D = CONSTANT_POSITION_D - ZOOM_CHANGE
+            drawScene(allVectors);
+            break;
+        case 85: //u
+            rotatePicture(allPoints, "XB");
+            drawScene(allVectors);
+            break;
+        case 89: //y
+            rotatePicture(allPoints, "XF");
             drawScene(allVectors);
             break;
         default:
