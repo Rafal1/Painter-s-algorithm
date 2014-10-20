@@ -1,10 +1,10 @@
 /**
  * Created by Rafał Zawadzki on 2014-10-13.
  */
-var TRANSLATE_DEFAULT_STEP = 10;
-var CONSTANT_POSITION_D = 5;
-var TRANSLATE_ADJUSTMENT = 50; //higher -> less movement on z axis
-
+var TRANSLATE_DEFAULT_STEP = 12;
+var CONSTANT_POSITION_D = 50;
+var TRANSLATE_ADJUSTMENT = 20; //higher -> less movement on z axis
+var ZOOM_CHANGE = 20;
 function Point3D(x, y, z) {
     this.x = x;
     this.y = y;
@@ -60,15 +60,55 @@ function Vector3D(A, B) {
     }
 
     function draw(ctx) {
-        var afterProjection = this.projection();
 
-        var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
-        var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
+        if (this.A.z <= 0 && this.B.z <= 0) {
+            return;
+        }
 
-        ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
-        ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
-        ctx.stroke();
+        var tmpAX, tmpAY, tmpBX, tmpBY, tmpA, tmpB;
+        if (this.A.z < 0) {
+            tmpA = notVisible(this.B, this.A);
+            tmpAX = tmpA.x * CONSTANT_POSITION_D / (tmpA.z);
+            tmpAY = tmpA.y * CONSTANT_POSITION_D / (tmpA.z); //todo imrove projection
+            PointATransformSystem = transformCoordinateSystem(tmpAX, tmpAY);
+            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+            var afterProjection = this.projection();
+            var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
+            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
+            ctx.stroke();
+        } else if (this.B.z < 0) {
+            tmpB = notVisible(this.A, this.B);
+            tmpBX = tmpB.x * CONSTANT_POSITION_D / (tmpB.z);
+            tmpBY = tmpB.y * CONSTANT_POSITION_D / (tmpB.z);
+            var afterProjection = this.projection();
+            var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
+            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+            var PointBTransformSystem = transformCoordinateSystem(tmpBX, tmpBY);
+            ctx.lineTo(tmpBX, tmpBY);
+            ctx.stroke();
+        } else {
+            var afterProjection = this.projection();
+
+            var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
+            var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
+
+            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
+            ctx.stroke();
+        }
     }
+}
+
+function notVisible(vis, notvis) {
+    var p = new Point3D();
+    p.z = 1;
+    p.x = 0;
+    p.y = 0;
+    var depth = Math.abs(vis.z) + Math.abs(notvis.z);
+    var ratio = (vis.z + 1.0) / (depth);
+    p.x = (vis.x + notvis.x) * ratio;
+    p.y = (vis.y + notvis.y) * ratio;
+    return p;
 }
 
 function transformCoordinateSystem(Bx, By) {
@@ -126,6 +166,7 @@ function tanslatePicture(points, direction) {
             for (var i = 0; i < points.length; i++) {
                 points[i].translateForward();
             }
+//            alert("Z = " + points[16].z);
             break;
         case "back":
             for (var i = 0; i < points.length; i++) {
@@ -148,41 +189,80 @@ function drawScene(vectors) {
     }
 }
 
+function controlSystem(event) {
+    switch (event.keyCode) {
+        case 87: //w
+            tanslatePicture(allPoints, "up");
+            drawScene(allVectors); // ;/ when defined? in global pool only :(
+            break;
+        case 83: //s
+            tanslatePicture(allPoints, "down");
+            drawScene(allVectors);
+            break;
+        case 65: //a
+            tanslatePicture(allPoints, "left");
+            drawScene(allVectors);
+            break;
+        case 68: //d
+            tanslatePicture(allPoints, "right");
+            drawScene(allVectors);
+            break;
+        case 81: //q
+            tanslatePicture(allPoints, "forward");
+            drawScene(allVectors);
+            break;
+        case 69: //e
+            tanslatePicture(allPoints, "back");
+            drawScene(allVectors);
+            break;
+        case 80: //p
+            CONSTANT_POSITION_D = CONSTANT_POSITION_D + ZOOM_CHANGE
+            drawScene(allVectors);
+            break;
+        case 79: //o
+            CONSTANT_POSITION_D = CONSTANT_POSITION_D - ZOOM_CHANGE
+            drawScene(allVectors);
+            break;
+        default:
+            break;
+    }
+}
+
 var points1 = [];
 //-40 + 30
-points1[0] = new Point3D(-20, -20, 1.3);
-points1[1] = new Point3D(-60, -20, 1.3);
-points1[2] = new Point3D(-60, 10, 1.3);
-points1[3] = new Point3D(-20, 10, 1.3);
+points1[0] = new Point3D(-20, -20, 20);
+points1[1] = new Point3D(-60, -20, 20);
+points1[2] = new Point3D(-60, 10, 20);
+points1[3] = new Point3D(-20, 10, 20);
 
-points1[4] = new Point3D(-20, -20, 2);
-points1[5] = new Point3D(-60, -20, 2);
-points1[6] = new Point3D(-60, 10, 2);
-points1[7] = new Point3D(-20, 10, 2);
+points1[4] = new Point3D(-20, -20, 50);
+points1[5] = new Point3D(-60, -20, 50);
+points1[6] = new Point3D(-60, 10, 50);
+points1[7] = new Point3D(-20, 10, 50);
 
 var points2 = [];
 //-30 + 70
-points2[0] = new Point3D(-20, -20, 2.2);
-points2[1] = new Point3D(-60, -20, 2.2);
-points2[2] = new Point3D(-60, 50, 2.2);
-points2[3] = new Point3D(-20, 50, 2.2);
+points2[0] = new Point3D(-20, -20, 55);
+points2[1] = new Point3D(-60, -20, 55);
+points2[2] = new Point3D(-60, 50, 55);
+points2[3] = new Point3D(-20, 50, 55);
 
-points2[4] = new Point3D(-20, -20, 2.8);
-points2[5] = new Point3D(-50, -20, 2.8);
-points2[6] = new Point3D(-50, 50, 2.8);
-points2[7] = new Point3D(-20, 50, 2.8);
+points2[4] = new Point3D(-20, -20, 85);
+points2[5] = new Point3D(-50, -20, 85);
+points2[6] = new Point3D(-50, 50, 85);
+points2[7] = new Point3D(-20, 50, 85);
 
 var points3 = [];
 //40 + 25
-points3[0] = new Point3D(20, -20, 1.4);
-points3[1] = new Point3D(60, -20, 1.4);
-points3[2] = new Point3D(60, 5, 1.4);
-points3[3] = new Point3D(20, 5, 1.4);
+points3[0] = new Point3D(20, -20, 20);
+points3[1] = new Point3D(60, -20, 20);
+points3[2] = new Point3D(60, 5, 20);
+points3[3] = new Point3D(20, 5, 20);
 
-points3[4] = new Point3D(20, -20, 2.5);
-points3[5] = new Point3D(60, -20, 2.5);
-points3[6] = new Point3D(60, 5, 2.5);
-points3[7] = new Point3D(20, 5, 2.5);
+points3[4] = new Point3D(20, -20, 70);
+points3[5] = new Point3D(60, -20, 70);
+points3[6] = new Point3D(60, 5, 70);
+points3[7] = new Point3D(20, 5, 70);
 
 var vectors1 = makeSolidVectorsFromPoints(points1);
 var vectors2 = makeSolidVectorsFromPoints(points2);
@@ -191,29 +271,6 @@ var allVectors = vectors1.concat(vectors2).concat(vectors3); //i checked length 
 var allPoints = points1.concat(points2).concat(points3);
 
 drawScene(allVectors);
-//tanslatePicture(allPoints, "up");
-//tanslatePicture(allPoints, "up");
-//tanslatePicture(allPoints, "up");
-//
-//tanslatePicture(allPoints, "right");
-//tanslatePicture(allPoints, "right");
-//tanslatePicture(allPoints, "right");
 
-//tanslatePicture(allPoints, "forward");
-//tanslatePicture(allPoints, "forward");
-//tanslatePicture(allPoints, "forward");
-//tanslatePicture(allPoints, "forward");
-//tanslatePicture(allPoints, "forward");
-
-//tanslatePicture(allPoints, "back");
-//tanslatePicture(allPoints, "back");
-//tanslatePicture(allPoints, "back");
-//tanslatePicture(allPoints, "back");
-//tanslatePicture(allPoints, "back");
-
-drawScene(allVectors);
-
-//todo control system for translation
-//todo zoom option + control system
 //todo rotate calculations
 //todo divide a big script to many smaller
