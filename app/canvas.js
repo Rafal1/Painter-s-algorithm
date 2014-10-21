@@ -5,7 +5,10 @@ var TRANSLATE_DEFAULT_STEP = 12;
 var CONSTANT_POSITION_D = 50;
 var TRANSLATE_ADJUSTMENT = 20; //higher -> less movement on z axis
 var ZOOM_CHANGE = 20;
-var CONSTANT_ROTATE = 15;
+var ROTATE_X = 10;
+var ROTATE_Y = 10;
+var ROTATE_Z = 15;
+
 
 function Point3D(x, y, z) {
     this.x = x;
@@ -48,20 +51,30 @@ function Point3D(x, y, z) {
     }
 
     function rotateX(dir) {
-        this.y = this.y * Math.cos(CONSTANT_ROTATE * Math.PI / 180) - this.z * Math.sin(CONSTANT_ROTATE * Math.PI / 180);
-        this.z = this.y * Math.sin(CONSTANT_ROTATE * Math.PI / 180) + this.z * Math.cos(CONSTANT_ROTATE * Math.PI / 180);
-        if (dir == 1) {
-            CONSTANT_ROTATE += CONSTANT_ROTATE;
-        } else {
-            CONSTANT_ROTATE -= CONSTANT_ROTATE;
-        }
+        var rot = ROTATE_X;
+        if (dir != 1)
+            rot = -rot;
+        var tmpY = this.y;
+        this.y = this.y * Math.cos(rot * Math.PI / 180) - this.z * Math.sin(rot * Math.PI / 180);
+        this.z = tmpY * Math.sin(rot * Math.PI / 180) + this.z * Math.cos(rot * Math.PI / 180);
     }
 
-    function rotateY() {
+    function rotateY(dir) {
+        var rot = ROTATE_Y;
+        if (dir != 1)
+            rot = -rot;
+        var tmpX = this.x;
+        this.x = this.x * Math.cos(rot * Math.PI / 180) + this.z * Math.sin(rot * Math.PI / 180);
+        this.z = -tmpX * Math.sin(rot * Math.PI / 180) + this.z * Math.cos(rot * Math.PI / 180);
     }
 
-    function rotateZ() {
-
+    function rotateZ(dir) {
+        var rot = ROTATE_Z;
+        if (dir != 1)
+            rot = -rot;
+        var tmpX = this.x;
+        this.x = this.x * Math.cos(rot * Math.PI / 180) - this.y * Math.sin(rot * Math.PI / 180);
+        this.y = tmpX * Math.sin(rot * Math.PI / 180) + this.y * Math.cos(rot * Math.PI / 180);
     }
 }
 
@@ -82,7 +95,6 @@ function Vector3D(A, B) {
     }
 
     function draw(ctx) {
-
         if (this.A.z <= 0 && this.B.z <= 0) {
             return;
         }
@@ -110,10 +122,8 @@ function Vector3D(A, B) {
             ctx.stroke();
         } else {
             var afterProjection = this.projection();
-
             var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
             var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
-
             ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
             ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
             ctx.stroke();
@@ -212,6 +222,26 @@ function rotatePicture(points, direction) {
                 points[i].rotateX(-1);
             }
             break;
+        case "ZF":
+            for (var i = 0; i < points.length; i++) {
+                points[i].rotateZ(1);
+            }
+            break;
+        case "ZB":
+            for (var i = 0; i < points.length; i++) {
+                points[i].rotateZ(-1);
+            }
+            break;
+        case "YF":
+            for (var i = 0; i < points.length; i++) {
+                points[i].rotateY(1);
+            }
+            break;
+        case "YB":
+            for (var i = 0; i < points.length; i++) {
+                points[i].rotateY(-1);
+            }
+            break;
         default:
             break;
     }
@@ -268,6 +298,22 @@ function controlSystem(event) {
             break;
         case 89: //y
             rotatePicture(allPoints, "XF");
+            drawScene(allVectors);
+            break;
+        case 78: //n
+            rotatePicture(allPoints, "ZF");
+            drawScene(allVectors);
+            break;
+        case 77: //m
+            rotatePicture(allPoints, "ZB");
+            drawScene(allVectors);
+            break;
+        case 72: //h
+            rotatePicture(allPoints, "YF");
+            drawScene(allVectors);
+            break;
+        case 74: //j
+            rotatePicture(allPoints, "YB");
             drawScene(allVectors);
             break;
         default:
