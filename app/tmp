@@ -33,3 +33,66 @@ points3[4] = new Point3D(20, -20, 2.5);
 points3[5] = new Point3D(60, -20, 2.5);
 points3[6] = new Point3D(60, 5, 2.5);
 points3[7] = new Point3D(20, 5, 2.5);
+
+        var tmpAX, tmpAY, tmpBX, tmpBY, tmpA, tmpB;
+        if (this.A.z < 0) {
+            tmpA = notVisible(this.B, this.A);
+            tmpAX = tmpA.x * CONSTANT_POSITION_D / (tmpA.z);
+            tmpAY = tmpA.y * CONSTANT_POSITION_D / (tmpA.z); //todo imrove projection
+            PointATransformSystem = transformCoordinateSystem(tmpAX, tmpAY);
+            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+            var afterProjection = this.projection();
+            var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
+            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
+            ctx.stroke();
+        } else if (this.B.z < 0) {
+            tmpB = notVisible(this.A, this.B);
+            tmpBX = tmpB.x * CONSTANT_POSITION_D / (tmpB.z);
+            tmpBY = tmpB.y * CONSTANT_POSITION_D / (tmpB.z);
+            var afterProjection = this.projection();
+            var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
+            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+            var PointBTransformSystem = transformCoordinateSystem(tmpBX, tmpBY);
+            ctx.lineTo(tmpBX, tmpBY);
+            ctx.stroke();
+        } else {
+            var afterProjection = this.projection();
+            var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
+            var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
+            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
+            ctx.stroke();
+        }
+    }
+
+
+        var tmpAX, tmpAY, tmpBX, tmpBY, tmpA, tmpB;
+        if (this.A.z < 1) {
+            tmpA = notVisible(this.B, this.A);
+            tmpAX = tmpA.x * CONSTANT_POSITION_D / (tmpA.z);
+            tmpAY = tmpA.y * CONSTANT_POSITION_D / (tmpA.z); //todo imrove projection
+            PointATransformSystem = transformCoordinateSystem(tmpAX, tmpAY);
+            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+            var afterProjection = this.projection();
+            var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
+            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
+            ctx.stroke();
+        } else if (this.B.z < 1) {
+            tmpB = notVisible(this.A, this.B);
+            tmpBX = tmpB.x * CONSTANT_POSITION_D / (tmpB.z);
+            tmpBY = tmpB.y * CONSTANT_POSITION_D / (tmpB.z);
+            var afterProjection = this.projection();
+            var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
+            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+            var PointBTransformSystem = transformCoordinateSystem(tmpBX, tmpBY);
+            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
+            ctx.stroke();
+        } else {
+            var afterProjection = this.projection();
+            var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
+            var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
+            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
+            ctx.stroke();
+        }
+    }

@@ -2,7 +2,7 @@
  * Created by Rafał Zawadzki on 2014-10-13.
  */
 var TRANSLATE_DEFAULT_STEP = 12;
-var CONSTANT_POSITION_D = 50;
+var ZOOM_COEFFICIENT = 50;
 var TRANSLATE_ADJUSTMENT = 20; //higher -> less movement on z axis
 var ZOOM_CHANGE = 20;
 var ROTATE_X = 10;
@@ -81,18 +81,9 @@ function Point3D(x, y, z) {
 function Vector3D(A, B) {
     this.A = A;
     this.B = B;
+    this.color = "#000000";
 
     this.draw = draw;
-    this.projection = projection;
-
-    function projection() {
-        var newCoordAfter = [];
-        newCoordAfter[0] = this.A.x * CONSTANT_POSITION_D / (this.A.z);
-        newCoordAfter[1] = this.A.y * CONSTANT_POSITION_D / (this.A.z);
-        newCoordAfter[2] = this.B.x * CONSTANT_POSITION_D / (this.B.z);
-        newCoordAfter[3] = this.B.y * CONSTANT_POSITION_D / (this.B.z);
-        return newCoordAfter;
-    }
 
     function draw(ctx) {
         if (this.A.z <= 0 && this.B.z <= 0) {
@@ -100,34 +91,37 @@ function Vector3D(A, B) {
         }
 
         var tmpAX, tmpAY, tmpBX, tmpBY, tmpA, tmpB;
-        if (this.A.z < 0) {
+
+        tmpAX = this.A.x * ZOOM_COEFFICIENT / (this.A.z);
+        tmpAY = this.A.y * ZOOM_COEFFICIENT / (this.A.z);
+        tmpBX = this.B.x * ZOOM_COEFFICIENT / (this.B.z);
+        tmpBY = this.B.y * ZOOM_COEFFICIENT / (this.B.z);
+
+        if (this.A.z < 0 && this.A.z < this.B.z) {
             tmpA = notVisible(this.B, this.A);
-            tmpAX = tmpA.x * CONSTANT_POSITION_D / (tmpA.z);
-            tmpAY = tmpA.y * CONSTANT_POSITION_D / (tmpA.z); //todo imrove projection
-            PointATransformSystem = transformCoordinateSystem(tmpAX, tmpAY);
-            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
-            var afterProjection = this.projection();
-            var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
-            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
-            ctx.stroke();
-        } else if (this.B.z < 0) {
-            tmpB = notVisible(this.A, this.B);
-            tmpBX = tmpB.x * CONSTANT_POSITION_D / (tmpB.z);
-            tmpBY = tmpB.y * CONSTANT_POSITION_D / (tmpB.z);
-            var afterProjection = this.projection();
-            var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
-            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
-            var PointBTransformSystem = transformCoordinateSystem(tmpBX, tmpBY);
-            ctx.lineTo(tmpBX, tmpBY);
-            ctx.stroke();
-        } else {
-            var afterProjection = this.projection();
-            var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
-            var PointBTransformSystem = transformCoordinateSystem(afterProjection[2], afterProjection[3]);
-            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
-            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
-            ctx.stroke();
+            tmpAX = tmpA.x * ZOOM_COEFFICIENT / (tmpA.z);
+            tmpAY = tmpA.y * ZOOM_COEFFICIENT / (tmpA.z);
         }
+
+        if (this.B.z < 0 && this.B.z < this.A.z) {
+            tmpB = notVisible(this.A, this.B);
+            tmpBX = tmpB.x * ZOOM_COEFFICIENT / (tmpB.z);
+            tmpBY = tmpB.y * ZOOM_COEFFICIENT / (tmpB.z);
+//            var afterProjection = this.projection();
+//            var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
+//            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+//            var PointBTransformSystem = transformCoordinateSystem(tmpBX, tmpBY);
+//            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
+//            ctx.stroke();
+        }
+
+        var PointATransformSystem = transformCoordinateSystem(tmpAX, tmpAY);
+        var PointBTransformSystem = transformCoordinateSystem(tmpBX, tmpBY);
+        ctx.beginPath();
+        ctx.strokeStyle = this.color;
+        ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
+        ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
+        ctx.stroke();
     }
 }
 
@@ -152,22 +146,34 @@ function transformCoordinateSystem(Bx, By) {
     }
 }
 
-function makeSolidVectorsFromPoints(points) {
+function makeSolidVectorsFromPoints(points, color) {
     var vectors = [];
     vectors[0] = new Vector3D(points[0], points[1]);
+    vectors[0].color = color;
     vectors[1] = new Vector3D(points[1], points[2]);
+    vectors[1].color = color;
     vectors[2] = new Vector3D(points[2], points[3]);
+    vectors[2].color = color;
     vectors[3] = new Vector3D(points[3], points[0]);
+    vectors[3].color = color;
 
     vectors[4] = new Vector3D(points[4], points[5]);
+    vectors[4].color = color;
     vectors[5] = new Vector3D(points[5], points[6]);
+    vectors[5].color = color;
     vectors[6] = new Vector3D(points[6], points[7]);
+    vectors[6].color = color;
     vectors[7] = new Vector3D(points[7], points[4]);
+    vectors[7].color = color;
 
     vectors[8] = new Vector3D(points[0], points[4]);
+    vectors[8].color = color;
     vectors[9] = new Vector3D(points[1], points[5]);
+    vectors[9].color = color;
     vectors[10] = new Vector3D(points[2], points[6]);
+    vectors[10].color = color;
     vectors[11] = new Vector3D(points[3], points[7]);
+    vectors[11].color = color;
 
     return vectors;
 }
@@ -198,7 +204,6 @@ function tanslatePicture(points, direction) {
             for (var i = 0; i < points.length; i++) {
                 points[i].translateForward();
             }
-//            alert("Z = " + points[16].z);
             break;
         case "back":
             for (var i = 0; i < points.length; i++) {
@@ -285,11 +290,11 @@ function controlSystem(event) {
             drawScene(allVectors);
             break;
         case 80: //p
-            CONSTANT_POSITION_D = CONSTANT_POSITION_D + ZOOM_CHANGE
+            ZOOM_COEFFICIENT = ZOOM_COEFFICIENT + ZOOM_CHANGE
             drawScene(allVectors);
             break;
         case 79: //o
-            CONSTANT_POSITION_D = CONSTANT_POSITION_D - ZOOM_CHANGE
+            ZOOM_COEFFICIENT = ZOOM_COEFFICIENT - ZOOM_CHANGE
             drawScene(allVectors);
             break;
         case 85: //u
@@ -347,23 +352,20 @@ points2[7] = new Point3D(-20, 50, 85);
 
 var points3 = [];
 //40 + 25
-points3[0] = new Point3D(20, -20, 20);
-points3[1] = new Point3D(60, -20, 20);
-points3[2] = new Point3D(60, 5, 20);
-points3[3] = new Point3D(20, 5, 20);
+points3[0] = new Point3D(20, -20, 25);
+points3[1] = new Point3D(60, -20, 25);
+points3[2] = new Point3D(60, 5, 25);
+points3[3] = new Point3D(20, 5, 25);
 
 points3[4] = new Point3D(20, -20, 70);
 points3[5] = new Point3D(60, -20, 70);
 points3[6] = new Point3D(60, 5, 70);
 points3[7] = new Point3D(20, 5, 70);
 
-var vectors1 = makeSolidVectorsFromPoints(points1);
-var vectors2 = makeSolidVectorsFromPoints(points2);
-var vectors3 = makeSolidVectorsFromPoints(points3);
+var vectors1 = makeSolidVectorsFromPoints(points1, "#FF0000 ");
+var vectors2 = makeSolidVectorsFromPoints(points2, "#000000");
+var vectors3 = makeSolidVectorsFromPoints(points3, "#00CC00");
 var allVectors = vectors1.concat(vectors2).concat(vectors3); //i checked length = 36, it's ok
 var allPoints = points1.concat(points2).concat(points3);
 
 drawScene(allVectors);
-
-//todo rotate calculations
-//todo divide a big script to many smaller
