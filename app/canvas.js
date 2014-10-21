@@ -3,7 +3,7 @@
  */
 var TRANSLATE_DEFAULT_STEP = 12;
 var ZOOM_COEFFICIENT = 50;
-var TRANSLATE_ADJUSTMENT = 20; //higher -> less movement on z axis
+var TRANSLATE_ADJUSTMENT = 5; //higher -> less movement on z axis
 var ZOOM_CHANGE = 20;
 var ROTATE_X = 10;
 var ROTATE_Y = 10;
@@ -345,7 +345,7 @@ points2[6] = new Point3D(-50, 50, 85);
 points2[7] = new Point3D(-20, 50, 85);
 
 var points3 = [];
-//40 + 25
+//40 + 45
 points3[0] = new Point3D(20, -20, 25);
 points3[1] = new Point3D(60, -20, 25);
 points3[2] = new Point3D(60, 5, 25);
