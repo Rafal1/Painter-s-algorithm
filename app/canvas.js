@@ -97,22 +97,16 @@ function Vector3D(A, B) {
         tmpBX = this.B.x * ZOOM_COEFFICIENT / (this.B.z);
         tmpBY = this.B.y * ZOOM_COEFFICIENT / (this.B.z);
 
-        if (this.A.z < 0 && this.A.z < this.B.z) {
+        if (this.A.z <= 0) {
             tmpA = notVisible(this.B, this.A);
             tmpAX = tmpA.x * ZOOM_COEFFICIENT / (tmpA.z);
             tmpAY = tmpA.y * ZOOM_COEFFICIENT / (tmpA.z);
         }
 
-        if (this.B.z < 0 && this.B.z < this.A.z) {
+        if (this.B.z <= 0) {
             tmpB = notVisible(this.A, this.B);
             tmpBX = tmpB.x * ZOOM_COEFFICIENT / (tmpB.z);
             tmpBY = tmpB.y * ZOOM_COEFFICIENT / (tmpB.z);
-//            var afterProjection = this.projection();
-//            var PointATransformSystem = transformCoordinateSystem(afterProjection[0], afterProjection[1]);
-//            ctx.moveTo(PointATransformSystem.transformedX, PointATransformSystem.transformedY);
-//            var PointBTransformSystem = transformCoordinateSystem(tmpBX, tmpBY);
-//            ctx.lineTo(PointBTransformSystem.transformedX, PointBTransformSystem.transformedY);
-//            ctx.stroke();
         }
 
         var PointATransformSystem = transformCoordinateSystem(tmpAX, tmpAY);
@@ -127,7 +121,7 @@ function Vector3D(A, B) {
 
 function notVisible(vis, notvis) {
     var p = new Point3D();
-    p.z = 1;
+    p.z = 0.01;
     p.x = 0;
     p.y = 0;
     var depth = Math.abs(vis.z) + Math.abs(notvis.z);
@@ -365,7 +359,7 @@ points3[7] = new Point3D(20, 5, 70);
 var vectors1 = makeSolidVectorsFromPoints(points1, "#FF0000 ");
 var vectors2 = makeSolidVectorsFromPoints(points2, "#000000");
 var vectors3 = makeSolidVectorsFromPoints(points3, "#00CC00");
-var allVectors = vectors1.concat(vectors2).concat(vectors3); //i checked length = 36, it's ok
+var allVectors = vectors1.concat(vectors2).concat(vectors3);
 var allPoints = points1.concat(points2).concat(points3);
 
 drawScene(allVectors);
