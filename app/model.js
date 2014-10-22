@@ -10,7 +10,6 @@ var ROTATE_X = 10;
 var ROTATE_Y = 10;
 var ROTATE_Z = 15;
 
-
 function Point3D(x, y, z) {
     this.x = x;
     this.y = y;

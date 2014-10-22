@@ -1,0 +1,5 @@
+//todo Plan ewnetualnej rozbudowy
+//1. zbudować lepsze miasto (pałac kultury itp.) i na tę okazje napisać Buildera
+//2. rzut z góry z boku i z przodu (XYZ) i zaznaczyć pozycję obserwatora na tych 3 mapach
+//3. podać dane dotyczące aktualnych kątów nachylenia
+//4. sterowanie myszką - precyzyjniejsze niż takie skoki, ale łatwiej zgubić obraz (zrobić mocno zniekształcony)

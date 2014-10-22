@@ -239,9 +239,9 @@ points3[5] = new Point3D(60, -20, 70);
 points3[6] = new Point3D(60, 5, 70);
 points3[7] = new Point3D(20, 5, 70);
 
-var solid1 = makeSolidVectorsFromPoints(points1, "#FF0000 ");
-var solid2 = makeSolidVectorsFromPoints(points2, "#000000");
-var solid3 = makeSolidVectorsFromPoints(points3, "#00CC00");
+var solid1 = makeSolidVectorsFromPoints(points1, "#FF0000 "); //red
+var solid2 = makeSolidVectorsFromPoints(points2, "#000000"); //black
+var solid3 = makeSolidVectorsFromPoints(points3, "#00CC00"); //green
 var allVectors = solid1.concat(solid2).concat(solid3);
 var allPoints = points1.concat(points2).concat(points3);
 
