@@ -6,31 +6,38 @@ var TRANSLATE_DEFAULT_STEP = 12;
 var ZOOM_COEFFICIENT = 50;
 var TRANSLATE_ADJUSTMENT = 5; //higher -> less movement on z axis
 var ZOOM_CHANGE = 20;
-var ROTATE_X = 10;
-var ROTATE_Y = 10;
-var ROTATE_Z = 15;
+var ROTATE_X = 6;
+var ROTATE_Y = 6;
+var ROTATE_Z = 7;
 var CANVAS_WIDTH = 600;
 var CANVAS_HEIGHT = 400;
 
 function Wall3D(A, B, C, D) {
-    this.VA = A;
-    this.VB = B;
-    this.VC = C;
-    this.VD = D;
+    this.PA = A;
+    this.PB = B;
+    this.PC = C;
+    this.PD = D;
     this.color = "#000000";
+    this.MINZ;
+    this.MAXZ;
 
     this.draw = draw;
 
     function draw(ctx) {
-        if(A.z<0 && B.z<0 && C.z<0 && D.z<0){
+        if (A.z < 0 && B.z < 0 && C.z < 0 && D.z < 0) {
             return;
         }
+//        if (A.z < 0 || B.z < 0 || C.z < 0 || D.z < 0) {
+//            return;
+//        }
         var tmpPA, tmpPB, tmpPC, tmpPD;
-        tmpPA = projection(this.VA);
-        tmpPB = projection(this.VB);
-        tmpPC = projection(this.VC);
-        tmpPD = projection(this.VD);
-
+        tmpPA = projection(this.PA);
+        tmpPB = projection(this.PB);
+        tmpPC = projection(this.PC);
+        tmpPD = projection(this.PD);
+        if( tmpPA == undefined || tmpPB == undefined || tmpPC == undefined || tmpPD == undefined){
+            return;
+        }
         ctx.beginPath();
         ctx.fillStyle = this.color;
 //        ctx.strokeStyle = "#FFFF00";
@@ -54,6 +61,7 @@ function projection(v) {
         var tmpZ = 0.01;
         tmpAX = v.x * ZOOM_COEFFICIENT / (tmpZ);
         tmpAY = v.y * ZOOM_COEFFICIENT / (tmpZ);
+        return undefined;
     }
     var PointATransformSystem = transformCoordinateSystem(tmpAX, tmpAY);
     return {
@@ -107,8 +115,8 @@ function Point3D(x, y, z) {
         if (dir != 1)
             rot = -rot;
         var tmpY = this.y;
-        this.y = this.y * Math.cos(rot * Math.PI / 180) - this.z * Math.sin(rot * Math.PI / 180);
-        this.z = tmpY * Math.sin(rot * Math.PI / 180) + this.z * Math.cos(rot * Math.PI / 180);
+        this.y = this.y * Math.cos((rot * Math.PI) / 180) - this.z * Math.sin((rot * Math.PI) / 180);
+        this.z = tmpY * Math.sin((rot * Math.PI) / 180) + this.z * Math.cos((rot * Math.PI) / 180);
     }
 
     function rotateY(dir) {
@@ -116,8 +124,8 @@ function Point3D(x, y, z) {
         if (dir != 1)
             rot = -rot;
         var tmpX = this.x;
-        this.x = this.x * Math.cos(rot * Math.PI / 180) + this.z * Math.sin(rot * Math.PI / 180);
-        this.z = -tmpX * Math.sin(rot * Math.PI / 180) + this.z * Math.cos(rot * Math.PI / 180);
+        this.x = this.x * Math.cos((rot * Math.PI) / 180) + this.z * Math.sin((rot * Math.PI) / 180);
+        this.z = -tmpX * Math.sin((rot * Math.PI) / 180) + this.z * Math.cos((rot * Math.PI) / 180);
     }
 
     function rotateZ(dir) {
@@ -128,18 +136,6 @@ function Point3D(x, y, z) {
         this.x = this.x * Math.cos(rot * Math.PI / 180) - this.y * Math.sin(rot * Math.PI / 180);
         this.y = tmpX * Math.sin(rot * Math.PI / 180) + this.y * Math.cos(rot * Math.PI / 180);
     }
-}
-
-function notVisible(vis, notvis) {
-    var p = new Point3D();
-    p.z = 0.01;
-    p.x = 0;
-    p.y = 0;
-    var depth = Math.abs(vis.z) + Math.abs(notvis.z);
-    var ratio = (vis.z + 1.0) / (depth);
-    p.x = (vis.x + notvis.x) * ratio;
-    p.y = (vis.y + notvis.y) * ratio;
-    return p;
 }
 
 function transformCoordinateSystem(Bx, By) {
@@ -249,10 +245,6 @@ function drawScene(walls) {
     var ctx = c.getContext("2d");
     ctx.clearRect(0, 0, c.width, c.height);
     ctx.beginPath();
-//    for (var i = 0; i < vectors.length; i++) {
-//        var tmpVe = vectors[i];
-//        tmpVe.draw(ctx);
-//    }
     for (var i = 0; i < walls.length; i++) {
         walls[i].draw(ctx);
     }
@@ -262,58 +254,72 @@ function controlSystem(event) {
     switch (event.keyCode) {
         case 87: //w
             tanslatePicture(allPoints, "up");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls); // ;/ when defined? in global pool only :(
             break;
         case 83: //s
             tanslatePicture(allPoints, "down");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 65: //a
             tanslatePicture(allPoints, "left");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 68: //d
             tanslatePicture(allPoints, "right");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 81: //q
             tanslatePicture(allPoints, "forward");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 69: //e
             tanslatePicture(allPoints, "back");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 80: //p
             ZOOM_COEFFICIENT = ZOOM_COEFFICIENT + ZOOM_CHANGE
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 79: //o
             ZOOM_COEFFICIENT = ZOOM_COEFFICIENT - ZOOM_CHANGE
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
-        case 85: //u
+        case 73: //i
             rotatePicture(allPoints, "XB");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
-        case 89: //y
+        case 75: //k
             rotatePicture(allPoints, "XF");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 78: //n
             rotatePicture(allPoints, "ZF");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 77: //m
             rotatePicture(allPoints, "ZB");
-            drawScene(allWalls);
-            break;
-        case 72: //h
-            rotatePicture(allPoints, "YF");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 74: //j
+            rotatePicture(allPoints, "YF");
+            allWalls = sortWalls(allWalls);
+            drawScene(allWalls);
+            break;
+        case 76: //l
             rotatePicture(allPoints, "YB");
+            allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         default:
@@ -321,33 +327,139 @@ function controlSystem(event) {
     }
 }
 
-function Wall3DParam(ID, SC, X, Y) {
-    this.ID = ID;
-    this.SC = SC;
-    this.XSC = X;
-    this.YSC = Y;
+function Wall3DParam() {
+    this.ID;
+    this.SC;
 }
 
 function scOfWall(wall) {
-//    wall.A
+    var sum = 0;
+    sum += wall.PA.z;
+    sum += wall.PB.z;
+    sum += wall.PC.z;
+    sum += wall.PD.z;
+//    if (sum == 0.04 || sum == 0.03 || sum == 0.02) {
+//        sum = 1000;
+//    }
+    return sum / 4;
 }
 
 function remakeWalls(walls) {
     var remaked = [];
-    for (var i = 0; walls.length; i++) {
-        var sc = walls[i];
+    for (var i = 0; i < walls.length; i++) {
         remaked[i] = new Wall3DParam();
-        walls[i]
+        remaked[i].SC = scOfWall(walls[i]);
+        remaked[i].ID = i;
     }
+    remaked.sort(function (a, b) {
+        return b.SC - a.SC
+    });
+    var remakedAndSorted = [];
+    for (var i = 0; i < walls.length; i++) {
+        remakedAndSorted[i] = walls[remaked[i].ID];
+    }
+    return remakedAndSorted;
+}
 
-    return remaked;
+function fixSortingWalls(walls) {
+    var sortedWalls = walls;
+    for (var i = 0; i < walls.length; i++) {
+        var zmax = maxZWall(walls[i]);
+        var zmin = minZWall(walls[i]);
+        walls[i].MAXZ = zmax;
+        walls[i].MINZ = zmin;
+    }
+    sortedWalls = sortedWalls.sort(function (a, b) {
+        var avg1 = ((b.PA.z + b.PB.z + b.PC.z + b.PD.z) / 4.0);
+        var avg2 = ((a.PA.z + a.PB.z + a.PC.z + a.PD.z) / 4.0);
+        var z1 = [b.PA.z, b.PB.z, b.PC.z, b.PD.z];
+        var z2 = [a.PA.z, a.PB.z, a.PC.z, a.PD.z];
+        var maxz1 = Number.MAX_VALUE;
+        var maxz2 = Number.MAX_VALUE;
+
+        var minz1 = Number.MIN_VALUE;
+        var minz2 = Number.MIN_VALUE;
+        var d;
+        for (d in z1) {
+            if (d > maxz1)
+                maxz1 = d;
+            if (d < minz1)
+                minz1 = d;
+        }
+        for (d in z2) {
+            if (d > maxz2)
+                maxz2 = d;
+            if (d < minz2)
+                minz2 = d;
+        }
+
+        if (maxz1 < minz2)
+            return 1;
+        else if (maxz2 < minz1)
+            return -1;
+        else
+            return (avg1 - avg2);
+    });
+//    for (var i = 0; i < walls.length; i++) {
+//        if (i + 1 != walls.length) {
+//            var max1 = maxZWall(walls[i]);
+//            var min2 = minZWall(walls[i + 1]);
+//            if (!(max1 < min2)) {
+//                sortedWalls = changeWallPriority(sortedWalls, i, i + 1);
+//            }
+//            continue;
+//        } else {
+//            var lastWall = walls[walls.length - 1];
+//            var pos = walls.length - 1;
+//            var LastMaxZ = maxZWall(lastWall);
+//
+//        }
+//    }
+    return sortedWalls;
+}
+
+function changeWallPriority(walls, from, to) {
+    var tmpWall;
+    tmpWall = walls[from];
+    walls[from] = walls[to];
+    walls[to] = tmpWall;
+    return walls;
+}
+
+function maxZWall(wall) {
+    var max = wall.PA.z;
+    if (wall.PB.z > max) {
+        max = wall.PB.z;
+    }
+    if (wall.PC.z > max) {
+        max = wall.PC.z;
+    }
+    if (wall.PD.z > max) {
+        max = wall.PD.z;
+    }
+    return max;
+}
+
+function minZWall(wall) {
+    var min = wall.PA.z;
+    if (wall.PB.z < min) {
+        min = wall.PB.z;
+    }
+    if (wall.PC.z < min) {
+        min = wall.PC.z;
+    }
+    if (wall.PD.z < min) {
+        min = wall.PD.z;
+    }
+    return min;
 }
 
 function sortWalls(walls) {
-    var sortedWalls = [];
+    var sortedWalls;
     sortedWalls = walls;
+    // sortedWalls = remakeWalls(sortedWalls);
+    sortedWalls = fixSortingWalls(sortedWalls);
     return sortedWalls;
-
 }
 
 var points1 = [];
@@ -389,7 +501,6 @@ points3[7] = new Point3D(20, 5, 70);
 var solid1 = makeSolidVectorsFromPoints(points1, "#FF0000"); //red
 var solid2 = makeSolidVectorsFromPoints(points2, "#000000"); //black
 var solid3 = makeSolidVectorsFromPoints(points3, "#00CC00"); //green
-//var allVectors = solid1.vectors.concat(solid2.vectors).concat(solid3.vectors);
 var allPoints = points1.concat(points2).concat(points3);
 var allWalls = solid1.walls.concat(solid2.walls).concat(solid3.walls);
 allWalls = sortWalls(allWalls);

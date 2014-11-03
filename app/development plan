@@ -172,3 +172,45 @@ function projection(v) {
 //    vectors[10].color = color;
 //    vectors[11] = new Vector3D(points[3], points[7]);
 //    vectors[11].color = color;
+
+//    for (var i = 0; i < vectors.length; i++) {
+//        var tmpVe = vectors[i];
+//        tmpVe.draw(ctx);
+//    }
+
+function notVisible(vis, notvis) {
+    var p = new Point3D();
+    p.z = 0.01;
+    p.x = 0;
+    p.y = 0;
+    var depth = Math.abs(vis.z) + Math.abs(notvis.z);
+    var ratio = (vis.z + 1.0) / (depth);
+    p.x = (vis.x + notvis.x) * ratio;
+    p.y = (vis.y + notvis.y) * ratio;
+    return p;
+}
+
+    var sum = 0;
+    if (wall.PA.z <= 0) {
+        sum += 0.01;
+    } else {
+        sum += wall.PA.z;
+    }
+    if (wall.PB.z <= 0) {
+        sum += 0.01;
+    } else {
+        sum += wall.PB.z;
+    }
+    if (wall.PC.z <= 0) {
+        sum += 0.01;
+    } else {
+        sum += wall.PC.z;
+    }
+    if (wall.PD.z <= 0) {
+        sum += 0.01;
+    } else {
+        sum += wall.PD.z;
+    }
+    if(sum==0.04 || sum==0.03){
+        sum = 1000;
+    }
