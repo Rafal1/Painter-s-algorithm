@@ -214,3 +214,37 @@ function notVisible(vis, notvis) {
     if(sum==0.04 || sum==0.03){
         sum = 1000;
     }
+
+    function Wall3DParam() {
+        this.ID;
+        this.SC;
+    }
+
+    function scOfWall(wall) {
+        var sum = 0;
+        sum += wall.PA.z;
+        sum += wall.PB.z;
+        sum += wall.PC.z;
+        sum += wall.PD.z;
+    //    if (sum == 0.04 || sum == 0.03 || sum == 0.02) {
+    //        sum = 1000;
+    //    }
+        return sum / 4;
+    }
+
+    function remakeWalls(walls) {
+        var remaked = [];
+        for (var i = 0; i < walls.length; i++) {
+            remaked[i] = new Wall3DParam();
+            remaked[i].SC = scOfWall(walls[i]);
+            remaked[i].ID = i;
+        }
+        remaked.sort(function (a, b) {
+            return b.SC - a.SC
+        });
+        var remakedAndSorted = [];
+        for (var i = 0; i < walls.length; i++) {
+            remakedAndSorted[i] = walls[remaked[i].ID];
+        }
+        return remakedAndSorted;
+    }

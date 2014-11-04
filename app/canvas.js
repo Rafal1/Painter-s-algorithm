@@ -3,7 +3,7 @@
  */
 
 var TRANSLATE_DEFAULT_STEP = 12;
-var ZOOM_COEFFICIENT = 50;
+var ZOOM_COEFFICIENT = 250;
 var TRANSLATE_ADJUSTMENT = 5; //higher -> less movement on z axis
 var ZOOM_CHANGE = 20;
 var ROTATE_X = 6;
@@ -11,6 +11,7 @@ var ROTATE_Y = 6;
 var ROTATE_Z = 7;
 var CANVAS_WIDTH = 600;
 var CANVAS_HEIGHT = 400;
+var ZOOM_MAX = 600;
 
 function Wall3D(A, B, C, D) {
     this.PA = A;
@@ -18,8 +19,6 @@ function Wall3D(A, B, C, D) {
     this.PC = C;
     this.PD = D;
     this.color = "#000000";
-    this.MINZ;
-    this.MAXZ;
 
     this.draw = draw;
 
@@ -27,15 +26,12 @@ function Wall3D(A, B, C, D) {
         if (A.z < 0 && B.z < 0 && C.z < 0 && D.z < 0) {
             return;
         }
-//        if (A.z < 0 || B.z < 0 || C.z < 0 || D.z < 0) {
-//            return;
-//        }
         var tmpPA, tmpPB, tmpPC, tmpPD;
         tmpPA = projection(this.PA);
         tmpPB = projection(this.PB);
         tmpPC = projection(this.PC);
         tmpPD = projection(this.PD);
-        if( tmpPA == undefined || tmpPB == undefined || tmpPC == undefined || tmpPD == undefined){
+        if (tmpPA == undefined || tmpPB == undefined || tmpPC == undefined || tmpPD == undefined) {
             return;
         }
         ctx.beginPath();
@@ -283,21 +279,27 @@ function controlSystem(event) {
             drawScene(allWalls);
             break;
         case 80: //p
-            ZOOM_COEFFICIENT = ZOOM_COEFFICIENT + ZOOM_CHANGE
+            ZOOM_COEFFICIENT = ZOOM_COEFFICIENT + ZOOM_CHANGE;
+            if(ZOOM_COEFFICIENT>600){
+                ZOOM_COEFFICIENT = ZOOM_MAX;
+            }
             allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 79: //o
-            ZOOM_COEFFICIENT = ZOOM_COEFFICIENT - ZOOM_CHANGE
-            allWalls = sortWalls(allWalls);
-            drawScene(allWalls);
-            break;
-        case 73: //i
-            rotatePicture(allPoints, "XB");
+            ZOOM_COEFFICIENT = ZOOM_COEFFICIENT - ZOOM_CHANGE;
+            if(ZOOM_COEFFICIENT<0){
+                ZOOM_COEFFICIENT = 1;
+            }
             allWalls = sortWalls(allWalls);
             drawScene(allWalls);
             break;
         case 75: //k
+            rotatePicture(allPoints, "XB");
+            allWalls = sortWalls(allWalls);
+            drawScene(allWalls);
+            break;
+        case 73: //i
             rotatePicture(allPoints, "XF");
             allWalls = sortWalls(allWalls);
             drawScene(allWalls);
@@ -327,48 +329,8 @@ function controlSystem(event) {
     }
 }
 
-function Wall3DParam() {
-    this.ID;
-    this.SC;
-}
-
-function scOfWall(wall) {
-    var sum = 0;
-    sum += wall.PA.z;
-    sum += wall.PB.z;
-    sum += wall.PC.z;
-    sum += wall.PD.z;
-//    if (sum == 0.04 || sum == 0.03 || sum == 0.02) {
-//        sum = 1000;
-//    }
-    return sum / 4;
-}
-
-function remakeWalls(walls) {
-    var remaked = [];
-    for (var i = 0; i < walls.length; i++) {
-        remaked[i] = new Wall3DParam();
-        remaked[i].SC = scOfWall(walls[i]);
-        remaked[i].ID = i;
-    }
-    remaked.sort(function (a, b) {
-        return b.SC - a.SC
-    });
-    var remakedAndSorted = [];
-    for (var i = 0; i < walls.length; i++) {
-        remakedAndSorted[i] = walls[remaked[i].ID];
-    }
-    return remakedAndSorted;
-}
-
 function fixSortingWalls(walls) {
     var sortedWalls = walls;
-    for (var i = 0; i < walls.length; i++) {
-        var zmax = maxZWall(walls[i]);
-        var zmin = minZWall(walls[i]);
-        walls[i].MAXZ = zmax;
-        walls[i].MINZ = zmin;
-    }
     sortedWalls = sortedWalls.sort(function (a, b) {
         var avg1 = ((b.PA.z + b.PB.z + b.PC.z + b.PD.z) / 4.0);
         var avg2 = ((a.PA.z + a.PB.z + a.PC.z + a.PD.z) / 4.0);
@@ -400,103 +362,51 @@ function fixSortingWalls(walls) {
         else
             return (avg1 - avg2);
     });
-//    for (var i = 0; i < walls.length; i++) {
-//        if (i + 1 != walls.length) {
-//            var max1 = maxZWall(walls[i]);
-//            var min2 = minZWall(walls[i + 1]);
-//            if (!(max1 < min2)) {
-//                sortedWalls = changeWallPriority(sortedWalls, i, i + 1);
-//            }
-//            continue;
-//        } else {
-//            var lastWall = walls[walls.length - 1];
-//            var pos = walls.length - 1;
-//            var LastMaxZ = maxZWall(lastWall);
-//
-//        }
-//    }
     return sortedWalls;
-}
-
-function changeWallPriority(walls, from, to) {
-    var tmpWall;
-    tmpWall = walls[from];
-    walls[from] = walls[to];
-    walls[to] = tmpWall;
-    return walls;
-}
-
-function maxZWall(wall) {
-    var max = wall.PA.z;
-    if (wall.PB.z > max) {
-        max = wall.PB.z;
-    }
-    if (wall.PC.z > max) {
-        max = wall.PC.z;
-    }
-    if (wall.PD.z > max) {
-        max = wall.PD.z;
-    }
-    return max;
-}
-
-function minZWall(wall) {
-    var min = wall.PA.z;
-    if (wall.PB.z < min) {
-        min = wall.PB.z;
-    }
-    if (wall.PC.z < min) {
-        min = wall.PC.z;
-    }
-    if (wall.PD.z < min) {
-        min = wall.PD.z;
-    }
-    return min;
 }
 
 function sortWalls(walls) {
     var sortedWalls;
     sortedWalls = walls;
-    // sortedWalls = remakeWalls(sortedWalls);
     sortedWalls = fixSortingWalls(sortedWalls);
     return sortedWalls;
 }
 
 var points1 = [];
-//-40 + 30
-points1[0] = new Point3D(-20, -20, 20);
-points1[1] = new Point3D(-60, -20, 20);
-points1[2] = new Point3D(-60, 10, 20);
-points1[3] = new Point3D(-20, 10, 20);
+//-40 + 30 (30)
+points1[0] = new Point3D(-20, -20, 50);
+points1[1] = new Point3D(-60, -20, 50);
+points1[2] = new Point3D(-60, 10, 50);
+points1[3] = new Point3D(-20, 10, 50);
 
-points1[4] = new Point3D(-20, -20, 50);
-points1[5] = new Point3D(-60, -20, 50);
-points1[6] = new Point3D(-60, 10, 50);
-points1[7] = new Point3D(-20, 10, 50);
+points1[4] = new Point3D(-20, -20, 80);
+points1[5] = new Point3D(-60, -20, 80);
+points1[6] = new Point3D(-60, 10, 80);
+points1[7] = new Point3D(-20, 10, 80);
 
 var points2 = [];
-//-30 + 70
-points2[0] = new Point3D(-20, -20, 55);
-points2[1] = new Point3D(-60, -20, 55);
-points2[2] = new Point3D(-60, 50, 55);
-points2[3] = new Point3D(-20, 50, 55);
+//-30 + 70 (40)
+points2[0] = new Point3D(-20, -20, 95);
+points2[1] = new Point3D(-60, -20, 95);
+points2[2] = new Point3D(-60, 50, 95);
+points2[3] = new Point3D(-20, 50, 95);
 
-points2[4] = new Point3D(-20, -20, 85);
-points2[5] = new Point3D(-50, -20, 85);
-points2[6] = new Point3D(-50, 50, 85);
-points2[7] = new Point3D(-20, 50, 85);
+points2[4] = new Point3D(-20, -20, 125);
+points2[5] = new Point3D(-50, -20, 125);
+points2[6] = new Point3D(-50, 50, 125);
+points2[7] = new Point3D(-20, 50, 125);
 
 var points3 = [];
 //40 + 45
-points3[0] = new Point3D(20, -20, 25);
-points3[1] = new Point3D(60, -20, 25);
-points3[2] = new Point3D(60, 5, 25);
-points3[3] = new Point3D(20, 5, 25);
+points3[0] = new Point3D(20, -20, 55);
+points3[1] = new Point3D(60, -20, 55);
+points3[2] = new Point3D(60, 5, 55);
+points3[3] = new Point3D(20, 5, 55);
 
-points3[4] = new Point3D(20, -20, 70);
-points3[5] = new Point3D(60, -20, 70);
-points3[6] = new Point3D(60, 5, 70);
-points3[7] = new Point3D(20, 5, 70);
+points3[4] = new Point3D(20, -20, 100);
+points3[5] = new Point3D(60, -20, 100);
+points3[6] = new Point3D(60, 5, 100);
+points3[7] = new Point3D(20, 5, 100);
 
 var solid1 = makeSolidVectorsFromPoints(points1, "#FF0000"); //red
 var solid2 = makeSolidVectorsFromPoints(points2, "#000000"); //black
