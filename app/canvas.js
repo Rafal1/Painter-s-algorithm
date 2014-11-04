@@ -11,7 +11,8 @@ var ROTATE_Y = 6;
 var ROTATE_Z = 7;
 var CANVAS_WIDTH = 600;
 var CANVAS_HEIGHT = 400;
-var ZOOM_MAX = 600;
+var ZOOM_MAX = 1000;
+var ZOOM_MIN = 1;
 
 function Wall3D(A, B, C, D) {
     this.PA = A;
@@ -280,7 +281,7 @@ function controlSystem(event) {
             break;
         case 80: //p
             ZOOM_COEFFICIENT = ZOOM_COEFFICIENT + ZOOM_CHANGE;
-            if(ZOOM_COEFFICIENT>600){
+            if(ZOOM_COEFFICIENT>ZOOM_MAX){
                 ZOOM_COEFFICIENT = ZOOM_MAX;
             }
             allWalls = sortWalls(allWalls);
@@ -288,8 +289,8 @@ function controlSystem(event) {
             break;
         case 79: //o
             ZOOM_COEFFICIENT = ZOOM_COEFFICIENT - ZOOM_CHANGE;
-            if(ZOOM_COEFFICIENT<0){
-                ZOOM_COEFFICIENT = 1;
+            if(ZOOM_COEFFICIENT<ZOOM_MIN){
+                ZOOM_COEFFICIENT = ZOOM_MIN;
             }
             allWalls = sortWalls(allWalls);
             drawScene(allWalls);
@@ -373,7 +374,7 @@ function sortWalls(walls) {
 }
 
 var points1 = [];
-//-40 + 30 (30)
+//-40 + 30
 points1[0] = new Point3D(-20, -20, 50);
 points1[1] = new Point3D(-60, -20, 50);
 points1[2] = new Point3D(-60, 10, 50);
@@ -385,7 +386,7 @@ points1[6] = new Point3D(-60, 10, 80);
 points1[7] = new Point3D(-20, 10, 80);
 
 var points2 = [];
-//-30 + 70 (40)
+//-30 + 70
 points2[0] = new Point3D(-20, -20, 95);
 points2[1] = new Point3D(-60, -20, 95);
 points2[2] = new Point3D(-60, 50, 95);
