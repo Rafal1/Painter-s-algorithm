@@ -144,23 +144,210 @@ function transformCoordinateSystem(Bx, By) {
     }
 }
 
-function makeSolidVectorsFromPoints(points, color) {
+function makeItColor(walls){
+    walls[0].color = "#00FFFF";
+    walls[1].color = "#FF8C00";
+    walls[2].color = "#FFD700";
+    walls[3].color = "#00FF00";
+    walls[4].color = "#BA55D3";
+    walls[5].color = "#000080";
+    walls[6].color = "#4169E1";
+    walls[7].color = "#F5DEB3";
+    walls[8].color = "#8B4513";
+    return walls;
+}
+
+function makeSolidVectorsFromPoints(width, height, depth, points, color) {
+    var SolidWalls = [];
     var walls = [];
-    walls[0] = new Wall3D(points[0], points[1], points[2], points[3]);
-    walls[0].color = color;
-    walls[1] = new Wall3D(points[4], points[5], points[6], points[7]);
-    walls[1].color = color;
-    walls[2] = new Wall3D(points[0], points[3], points[7], points[4]);
-    walls[2].color = color;
-    walls[3] = new Wall3D(points[0], points[1], points[5], points[4]);
-    walls[3].color = color;
-    walls[4] = new Wall3D(points[1], points[5], points[6], points[2]);
-    walls[4].color = color;
-    walls[5] = new Wall3D(points[3], points[2], points[6], points[7]);
-    walls[5].color = color;
-    return {
-        walls: walls
+    var allWallPoints = [];
+    var tmpObj;
+    tmpObj = divideWallZ(width, height, points[4], points[5], points[7], points[6], color);
+    walls[0] = tmpObj.walls;
+    allWallPoints = allWallPoints.concat(tmpObj.pointsOfWall);
+    walls[0]= makeItColor(walls[0]);
+
+    tmpObj = divideWallX(depth, height, points[0], points[4], points[3], points[7], color);
+    walls[1] = tmpObj.walls;
+    allWallPoints = allWallPoints.concat(tmpObj.pointsOfWall);
+
+    tmpObj = divideWallX(depth, height, points[1], points[5], points[2], points[6], color);
+    walls[2] = tmpObj.walls;
+    allWallPoints = allWallPoints.concat(tmpObj.pointsOfWall);
+
+    tmpObj = divideWallY(depth, width, points[0], points[4], points[1], points[5], color);
+    walls[3] = tmpObj.walls;
+    allWallPoints = allWallPoints.concat(tmpObj.pointsOfWall);
+
+    tmpObj = divideWallY(depth, width, points[3], points[7], points[2], points[6], color);
+    walls[4] = tmpObj.walls;
+    allWallPoints = allWallPoints.concat(tmpObj.pointsOfWall);
+
+    tmpObj = divideWallZ(width, height, points[0], points[1], points[3], points[2], color);
+    walls[5] = tmpObj.walls;
+    allWallPoints = allWallPoints.concat(tmpObj.pointsOfWall);
+
+    for (var i = 0; i < walls.length; i++) {
+        SolidWalls = SolidWalls.concat(walls[i]);
     }
+
+    return {
+        walls: SolidWalls,
+        solidPoints: allWallPoints
+    }
+}
+
+function divideWallZ(width, height, p0, p3, p12, p15, color) {
+    // 0--1--2--3
+    // |  |  |  |
+    // 3--4--5--6
+    // |  |  |  |
+    // 8--9--10-11
+    // 12-13-14-15
+
+    var uniZ = p0.z; //all point of wall are belongs to the dame surface do have the same z
+    var devWalls = [];
+    var p1 = new Point3D(p0.x + width / 3, p0.y, uniZ);
+    var p2 = new Point3D(p0.x + 2 * width / 3, p0.y, uniZ);
+    var p4 = new Point3D(p0.x, p0.y + height / 3, uniZ);
+    var p5 = new Point3D(p0.x + width / 3, p0.y + height / 3, uniZ);
+    var p6 = new Point3D(p0.x + 2 * width / 3, p0.y + height / 3, uniZ);
+    var p7 = new Point3D(p0.x + width, p0.y + height / 3, uniZ);
+    var p8 = new Point3D(p0.x, p0.y + 2 * height / 3, uniZ);
+    var p9 = new Point3D(p0.x + width / 3, p0.y + 2 * height / 3, uniZ);
+    var p10 = new Point3D(p0.x + 2 * width / 3, p0.y + 2 * height / 3, uniZ);
+    var p11 = new Point3D(p0.x + width, p0.y + 2 * height / 3, uniZ);
+    var p13 = new Point3D(p0.x + width / 3, p0.y + height, uniZ);
+    var p14 = new Point3D(p0.x + 2 * width / 3, p0.y + height, uniZ);
+
+    devWalls[0] = new Wall3D(p0, p1, p5, p4);
+    devWalls[0].color = color;
+    devWalls[1] = new Wall3D(p1, p2, p6, p5);
+    devWalls[1].color = color;
+    devWalls[2] = new Wall3D(p2, p3, p7, p6);
+    devWalls[2].color = color;
+
+    devWalls[3] = new Wall3D(p4, p5, p9, p8);
+    devWalls[3].color = color;
+    devWalls[4] = new Wall3D(p5, p6, p10, p9);
+    devWalls[4].color = color;
+    devWalls[5] = new Wall3D(p6, p7, p11, p10);
+    devWalls[5].color = color;
+
+    devWalls[6] = new Wall3D(p8, p9, p13, p12);
+    devWalls[6].color = color;
+    devWalls[7] = new Wall3D(p9, p10, p14, p13);
+    devWalls[7].color = color;
+    devWalls[8] = new Wall3D(p10, p11, p15, p14);
+    devWalls[8].color = color;
+
+    var pointsOfWall = [p1, p2, p4, p5, p6, p7, p8, p9, p10, p11, p13, p14];
+    return {
+        walls: devWalls,
+        pointsOfWall: pointsOfWall
+    };
+}
+
+function divideWallX(width, height, p0, p3, p12, p15, color) {
+    // 0--1--2--3
+    // |  |  |  |
+    // 3--4--5--6
+    // |  |  |  |
+    // 8--9--10-11
+    // 12-13-14-15
+
+    var uniX = p0.x; //all point of wall are belongs to the dame surface do have the same z
+    var devWalls = [];
+    var p1 = new Point3D(uniX, p0.y, p0.z + width / 3);
+    var p2 = new Point3D(uniX, p0.y, p0.z + 2 * width / 3);
+    var p4 = new Point3D(uniX, p0.y + height / 3, p0.z);
+    var p5 = new Point3D(uniX, p0.y + height / 3, p0.z + width / 3);
+    var p6 = new Point3D(uniX, p0.y + height / 3, p0.z + 2 * width / 3);
+    var p7 = new Point3D(uniX, p0.y + height / 3, p0.z + width);
+    var p8 = new Point3D(uniX, p0.y + 2 * height / 3, p0.z);
+    var p9 = new Point3D(uniX, p0.y + 2 * height / 3, p0.z + width / 3);
+    var p10 = new Point3D(uniX, p0.y + 2 * height / 3, p0.z + 2 * width / 3);
+    var p11 = new Point3D(uniX, p0.y + 2 * height / 3, p0.z + width);
+    var p13 = new Point3D(uniX, p0.y + height, p0.z + width / 3);
+    var p14 = new Point3D(uniX, p0.y + height, p0.z + 2 * width / 3);
+
+    devWalls[0] = new Wall3D(p0, p1, p5, p4);
+    devWalls[0].color = color;
+    devWalls[1] = new Wall3D(p1, p2, p6, p5);
+    devWalls[1].color = color;
+    devWalls[2] = new Wall3D(p2, p3, p7, p6);
+    devWalls[2].color = color;
+
+    devWalls[3] = new Wall3D(p4, p5, p9, p8);
+    devWalls[3].color = color;
+    devWalls[4] = new Wall3D(p5, p6, p10, p9);
+    devWalls[4].color = color;
+    devWalls[5] = new Wall3D(p6, p7, p11, p10);
+    devWalls[5].color = color;
+
+    devWalls[6] = new Wall3D(p8, p9, p13, p12);
+    devWalls[6].color = color;
+    devWalls[7] = new Wall3D(p9, p10, p14, p13);
+    devWalls[7].color = color;
+    devWalls[8] = new Wall3D(p10, p11, p15, p14);
+    devWalls[8].color = color;
+
+    var pointsOfWall = [p1, p2, p4, p5, p6, p7, p8, p9, p10, p11, p13, p14];
+    return {
+        walls: devWalls,
+        pointsOfWall: pointsOfWall
+    };
+}
+
+function divideWallY(width, height, p0, p3, p12, p15, color) {
+    // 0--1--2--3
+    // |  |  |  |
+    // 3--4--5--6
+    // |  |  |  |
+    // 8--9--10-11
+    // 12-13-14-15
+
+    var uniY = p0.y; //all point of wall are belongs to the dame surface do have the same z
+    var devWalls = [];
+    var p1 = new Point3D(p0.x, uniY, p0.z + width / 3);
+    var p2 = new Point3D(p0.x, uniY, p0.z + 2 * width / 3);
+    var p4 = new Point3D(p0.x + height / 3, uniY, p0.z);
+    var p5 = new Point3D(p0.x + height / 3, uniY, p0.z + width / 3);
+    var p6 = new Point3D(p0.x + height / 3, uniY, p0.z + 2 * width / 3);
+    var p7 = new Point3D(p0.x + height / 3, uniY, p0.z + width);
+    var p8 = new Point3D(p0.x + 2 * height / 3, uniY, p0.z);
+    var p9 = new Point3D(p0.x + 2 * height / 3, uniY, p0.z + width / 3);
+    var p10 = new Point3D(p0.x + 2 * height / 3, uniY, p0.z + 2 * width / 3);
+    var p11 = new Point3D(p0.x + 2 * height / 3, uniY, p0.z + width);
+    var p13 = new Point3D(p0.x + height, uniY, p0.z + width / 3);
+    var p14 = new Point3D(p0.x + height, uniY, p0.z + 2 * width / 3);
+
+    devWalls[0] = new Wall3D(p0, p1, p5, p4);
+    devWalls[0].color = color;
+    devWalls[1] = new Wall3D(p1, p2, p6, p5);
+    devWalls[1].color = color;
+    devWalls[2] = new Wall3D(p2, p3, p7, p6);
+    devWalls[2].color = color;
+
+    devWalls[3] = new Wall3D(p4, p5, p9, p8);
+    devWalls[3].color = color;
+    devWalls[4] = new Wall3D(p5, p6, p10, p9);
+    devWalls[4].color = color;
+    devWalls[5] = new Wall3D(p6, p7, p11, p10);
+    devWalls[5].color = color;
+
+    devWalls[6] = new Wall3D(p8, p9, p13, p12);
+    devWalls[6].color = color;
+    devWalls[7] = new Wall3D(p9, p10, p14, p13);
+    devWalls[7].color = color;
+    devWalls[8] = new Wall3D(p10, p11, p15, p14);
+    devWalls[8].color = color;
+
+    var pointsOfWall = [p1, p2, p4, p5, p6, p7, p8, p9, p10, p11, p13, p14];
+    return {
+        walls: devWalls,
+        pointsOfWall: pointsOfWall
+    };
 }
 
 function tanslatePicture(points, direction) {
@@ -281,7 +468,7 @@ function controlSystem(event) {
             break;
         case 80: //p
             ZOOM_COEFFICIENT = ZOOM_COEFFICIENT + ZOOM_CHANGE;
-            if(ZOOM_COEFFICIENT>ZOOM_MAX){
+            if (ZOOM_COEFFICIENT > ZOOM_MAX) {
                 ZOOM_COEFFICIENT = ZOOM_MAX;
             }
             allWalls = sortWalls(allWalls);
@@ -289,7 +476,7 @@ function controlSystem(event) {
             break;
         case 79: //o
             ZOOM_COEFFICIENT = ZOOM_COEFFICIENT - ZOOM_CHANGE;
-            if(ZOOM_COEFFICIENT<ZOOM_MIN){
+            if (ZOOM_COEFFICIENT < ZOOM_MIN) {
                 ZOOM_COEFFICIENT = ZOOM_MIN;
             }
             allWalls = sortWalls(allWalls);
@@ -374,7 +561,7 @@ function sortWalls(walls) {
 }
 
 var points1 = [];
-//-40 + 30
+//-40, 30, 30
 points1[0] = new Point3D(-20, -20, 50);
 points1[1] = new Point3D(-60, -20, 50);
 points1[2] = new Point3D(-60, 10, 50);
@@ -386,19 +573,19 @@ points1[6] = new Point3D(-60, 10, 80);
 points1[7] = new Point3D(-20, 10, 80);
 
 var points2 = [];
-//-30 + 70
+//-40, 70, 20
 points2[0] = new Point3D(-20, -20, 95);
 points2[1] = new Point3D(-60, -20, 95);
 points2[2] = new Point3D(-60, 50, 95);
 points2[3] = new Point3D(-20, 50, 95);
 
-points2[4] = new Point3D(-20, -20, 125);
-points2[5] = new Point3D(-50, -20, 125);
-points2[6] = new Point3D(-50, 50, 125);
-points2[7] = new Point3D(-20, 50, 125);
+points2[4] = new Point3D(-20, -20, 115);
+points2[5] = new Point3D(-60, -20, 115);
+points2[6] = new Point3D(-60, 50, 115);
+points2[7] = new Point3D(-20, 50, 115);
 
 var points3 = [];
-//40 + 45
+//40, 25, 45
 points3[0] = new Point3D(20, -20, 55);
 points3[1] = new Point3D(60, -20, 55);
 points3[2] = new Point3D(60, 5, 55);
@@ -409,10 +596,11 @@ points3[5] = new Point3D(60, -20, 100);
 points3[6] = new Point3D(60, 5, 100);
 points3[7] = new Point3D(20, 5, 100);
 
-var solid1 = makeSolidVectorsFromPoints(points1, "#FF0000"); //red
-var solid2 = makeSolidVectorsFromPoints(points2, "#000000"); //black
-var solid3 = makeSolidVectorsFromPoints(points3, "#00CC00"); //green
-var allPoints = points1.concat(points2).concat(points3);
+var solid2 = makeSolidVectorsFromPoints(-40, 70, 20, points2, "#000000"); //black
+var solid1 = makeSolidVectorsFromPoints(-40, 30, 30, points1, "#FF0000"); //red
+var solid3 = makeSolidVectorsFromPoints(40, 25, 45, points3, "#00CC00"); //green
+var allPoints = solid1.solidPoints.concat(solid2.solidPoints).concat(solid3.solidPoints);
+allPoints = allPoints.concat(points1).concat(points2).concat(points3);
 var allWalls = solid1.walls.concat(solid2.walls).concat(solid3.walls);
 allWalls = sortWalls(allWalls);
 
